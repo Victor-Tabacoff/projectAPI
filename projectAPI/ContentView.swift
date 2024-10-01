@@ -22,12 +22,15 @@ struct ContentView: View {
                     .foregroundColor(.secondary)
             }
             .frame(width: 150, height: 150)
-            Text(pokemon?.name.capitalized ?? "Name Placeholder")
+            Text(pokemon?.name.capitalized ?? "Pokemon Name Placeholder")
                 .bold()
                 .font(.title3)
+            let cmHeight = (pokemon?.height ?? 0)*10
+            let kgWeight = (pokemon?.weight ?? 0)/10
+            let rkgWeight = (pokemon?.weight ?? 0)%10
             Text("ID: Pokemon #\(pokemon?.id ?? 0)")
-            Text("Height: \(pokemon?.height ?? 0) decimeters")
-            Text("Weight: \(pokemon?.weight ?? 0) hectograms")
+            Text("Height: \(cmHeight) cm")
+            Text("Weight: \(kgWeight).\(rkgWeight) kg")
         }
         .padding()
         .task {
