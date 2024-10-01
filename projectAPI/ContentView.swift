@@ -69,7 +69,7 @@ struct Pokemon: Codable {
     let weight: Int
     let sprites: Sprites
 
-struct Sprites: Codable {
+    struct Sprites: Codable {
     let frontDefault: String
     enum CodingKeys: String, CodingKey {
     case frontDefault = "front_default"
