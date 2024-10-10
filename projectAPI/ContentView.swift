@@ -41,15 +41,21 @@ struct ContentView: View {
                 .shadow(radius: 5)
                 Text(pokemon.name.capitalized)
                     .bold()
-                    .font(.title2)
                     .padding(.top, 10)
+                    .font(.system(size: 30))
                 let cmHeight = pokemon.height * 10
                 let kgWeight = pokemon.weight / 10
                 let rkgWeight = pokemon.weight % 10
                 VStack(alignment: .leading, spacing: 8) {
                     Text("ID: Pokémon #\(pokemon.id)")
+                        .bold()
+                        .font(.system(size: 25))
                     Text("Height: \(cmHeight) cm")
+                        .bold()
+                        .font(.system(size: 25))
                     Text("Weight: \(kgWeight).\(rkgWeight) kg")
+                        .bold()
+                        .font(.system(size: 25))
                 }
                 .padding(.top, 20)
                 .font(.body)
