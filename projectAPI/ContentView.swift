@@ -9,40 +9,71 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var pokemon: Pokemon?
+    @State private var pokemonName: String = ""
     
     var body: some View {
         VStack {
-            AsyncImage(url: URL(string: pokemon?.sprites.frontDefault ?? "")) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .clipShape(.circle)
-            } placeholder: {
-                Circle()
-                    .foregroundColor(.secondary)
+            TextField("Enter Pokémon name", text: $pokemonName)
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(10)
+                .padding(.horizontal)
+                .textFieldStyle(PlainTextFieldStyle())
+                .onSubmit {
+                    Task {
+                        await fetchPokemon()
+                    }
+                }
+            Spacer().frame(height: 20)
+            if let pokemon = pokemon {
+                AsyncImage(url: URL(string: pokemon.sprites.frontDefault)) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(Color.red, lineWidth: 4))
+                } placeholder: {
+                    Circle()
+                        .foregroundColor(.secondary)
+                        .overlay(Circle().stroke(Color.gray, lineWidth: 2))
+                }
+                .frame(width: 150, height: 150)
+                .shadow(radius: 5)
+                Text(pokemon.name.capitalized)
+                    .bold()
+                    .font(.title2)
+                    .padding(.top, 10)
+                let cmHeight = pokemon.height * 10
+                let kgWeight = pokemon.weight / 10
+                let rkgWeight = pokemon.weight % 10
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("ID: Pokémon #\(pokemon.id)")
+                    Text("Height: \(cmHeight) cm")
+                    Text("Weight: \(kgWeight).\(rkgWeight) kg")
+                }
+                .padding(.top, 20)
+                .font(.body)
+            } else {
+                Text("Enter a valid Pokémon name to see its details.")
+                    .foregroundColor(.gray)
+                    .italic()
+                    .padding(.top)
             }
-            .frame(width: 150, height: 150)
-            Text(pokemon?.name.capitalized ?? "Pokemon Name Placeholder")
-                .bold()
-                .font(.title3)
-            let cmHeight = (pokemon?.height ?? 0)*10
-            let kgWeight = (pokemon?.weight ?? 0)/10
-            let rkgWeight = (pokemon?.weight ?? 0)%10
-            Text("ID: Pokemon #\(pokemon?.id ?? 0)")
-            Text("Height: \(cmHeight) cm")
-            Text("Weight: \(kgWeight).\(rkgWeight) kg")
+Spacer()
         }
         .padding()
-        .task {
-            do {
-                pokemon = try await getPokemon()
-            } catch {
-                print("Error fetching Pokémon: \(error)")
-            }
+        .background(Color(.systemBackground))
+    }
+    func fetchPokemon() async {
+        guard !pokemonName.isEmpty else { return }
+        do {
+            pokemon = try await getPokemon(named: pokemonName.lowercased())
+        } catch {
+            print("Error fetching Pokémon: \(error)")
         }
     }
-    func getPokemon() async throws -> Pokemon {
-        let endpoint = "https://pokeapi.co/api/v2/pokemon/ditto"
+    func getPokemon(named name: String) async throws -> Pokemon {
+        let endpoint = "https://pokeapi.co/api/v2/pokemon/\(name)"
         guard let url = URL(string: endpoint) else {
             throw GHError.invalidURL
         }
@@ -62,6 +93,7 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
+
 struct Pokemon: Codable {
     let id: Int
     let name: String
@@ -70,9 +102,9 @@ struct Pokemon: Codable {
     let sprites: Sprites
 
     struct Sprites: Codable {
-    let frontDefault: String
-    enum CodingKeys: String, CodingKey {
-    case frontDefault = "front_default"
+        let frontDefault: String
+        enum CodingKeys: String, CodingKey {
+            case frontDefault = "front_default"
         }
     }
 }
